@@ -1,0 +1,27 @@
+[
+    {
+        "name": "Kemal",
+        "score": 32,
+        "countryCode": "TR"
+    },
+    {
+        "name": "Osman",
+        "score": 32,
+        "countryCode": "US"
+    },
+    {
+        "name": "Necati",
+        "score": 32,
+        "countryCode": "NL"
+    },
+    {
+        "name": "Necmi",
+        "score": 32,
+        "countryCode": "ES"
+    },
+    {
+        "name": "Kamil",
+        "score": 32,
+        "countryCode": "TR"
+    }
+]

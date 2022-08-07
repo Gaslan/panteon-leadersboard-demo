@@ -16,6 +16,12 @@ services:
       - mongo
     volumes:
       - ./backend/money:/app
+  frontend:
+    build: ./frontend
+    ports:
+      - "3002:80"
+    volumes:
+      - ./frontend:/frontend
   money-stream:
     build: ./backend/money-stream
     ports:

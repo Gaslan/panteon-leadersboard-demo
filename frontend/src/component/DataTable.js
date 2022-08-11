@@ -1,21 +1,24 @@
 import DataTableRow from "./DataTableRow"
 import { useEffect, useState } from "react"
 
+const LEADERSBOARD_URL = process.env.REACT_APP_LEADERSBOARD_URL
+
 function DataTable(props) {
 
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    let link = 'http://localhost:3004/leadersboard/'
+    console.log('process.env: ', process.env)
+    console.log('LEADERSBOARD_URL: ', LEADERSBOARD_URL)
+    let link = `${LEADERSBOARD_URL}/leadersboard/`
     if (props.boardType === 'daily') {
-      const appDate = props.appDate.toISOString().slice(0, 10).replaceAll('-', '')
+      const appDate = getDate(props.appDate)
       link += `daily/${appDate}`
     }
 
     if (props.boardType === 'weekly') {
-      const appDate = props.appDate.toISOString().slice(0, 10)
-      const previousStartOfWeek = getPreviousStartOfWeek(appDate).toISOString().slice(0, 10).replaceAll('-', '')
-      const nextEndOfWeek = getNextEndOfWeek(appDate).toISOString().slice(0, 10).replaceAll('-', '')
+      const previousStartOfWeek = getDate(getPreviousStartOfWeek(getDate2(props.appDate)))
+      const nextEndOfWeek = getDate(getNextEndOfWeek(getDate2(props.appDate)))
       link += `weekly/${previousStartOfWeek}-${nextEndOfWeek}`
     }
 
@@ -59,6 +62,18 @@ function getPreviousStartOfWeek(date) {
   const tempDate = new Date(date)
   tempDate.setDate(tempDate.getDate() - ((tempDate.getDay() + 6) % 7))
   return tempDate
+}
+
+function getDate(date) {
+  const offset = date.getTimezoneOffset()
+  const temp = new Date(date.getTime() - (offset*60*1000))
+  return temp.toISOString().split('T')[0].replaceAll('-', '')
+}
+
+function getDate2(date) {
+  const offset = date.getTimezoneOffset()
+  const temp = new Date(date.getTime() - (offset*60*1000))
+  return temp.toISOString().split('T')[0]
 }
 
 export default DataTable

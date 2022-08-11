@@ -8,14 +8,14 @@ services:
       - mongo
     volumes:
       - ./backend/user:/app
-  money:
-    build: ./backend/money
+  money-consumer:
+    build: ./backend/money-consumer
     ports:
       - "3001:3001"
     depends_on:
       - mongo
     volumes:
-      - ./backend/money:/app
+      - ./backend/money-consumer:/app
   frontend:
     build: ./frontend
     ports:

@@ -1,42 +1,48 @@
-const fs = require("fs")
+const express = require('express')
+const router = express.Router()
 const fetch = require('node-fetch')
 
-const MONEY_DATA_COUNT = 10000
-const DATE_FOR_MONEY = '2022-08-01'
+const USERS_SERVICE_URL = process.env.USERS_SERVICE_URL || 'https://panteon-leadersboard-user.herokuapp.com'
+const MONEY_STREAM_SERVICE_URL = process.env.MONEY_STREAM_SERVICE_URL || 'https://panteon-leadersboard-money-str.herokuapp.com'
 
-createMoney()
 
-async function createMoney() {
+
+router.get('/money-create/:count/:date', async (req, res) => {
+  const count = req.params.count
+  const date = req.params.date
+
+  createMoney(count, date)
+  res.send('OK...')
+})
+
+
+async function createMoney(count, date) {
   const users = await getUsers()
   const usersCount = users.length
-  const ws = fs.createWriteStream("./money.txt")
 
-  for (let i = 0; i < MONEY_DATA_COUNT; i++) {
+  for (let i = 0; i < count; i++) {
     const randomUserIndex = getRandomNumber(0, usersCount)
     const user = users[randomUserIndex]
-    const randomDateTime = getRandomDateTime(DATE_FOR_MONEY)
+    const randomDateTime = getRandomDateTime(date)
     const money = {
       username: user.username,
       amount: getRandomNumber(1, 100),
       datetime: randomDateTime
     }
-    writeToFile(money, ws)
+
+    const res = fetch(`${MONEY_STREAM_SERVICE_URL}/money-stream`, {
+      method: 'POST',
+      body: JSON.stringify(money),
+      headers: {'Content-Type': 'application/json'}
+    })
+
   }
 }
 
 async function getUsers() {
-  const res = await fetch('http://192.168.0.21:3000/users', {
-    method: 'POST',
-    body: JSON.stringify(userNames),
-    headers: {'Content-Type': 'application/json'}
-  })
-
+  const res = await fetch(`${USERS_SERVICE_URL}/user`)
   const usersData = await res.json()
   return usersData
-}
-
-function writeToFile(obj, stream) {
-  stream.write(JSON.stringify(obj) + '\n')
 }
 
 function getRandomNumber(min, max) {
@@ -55,3 +61,5 @@ function getRandomDateTime(date) {
   const time = getRandomTime()
   return `${date}T${time}`
 }
+
+module.exports = router

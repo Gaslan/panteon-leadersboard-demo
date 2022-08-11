@@ -16,5 +16,5 @@ app.use('/', indexRouter)
 const port = process.env.PORT || 3004;
 app.listen(port, () => {
   console.log(`Listening: http://localhost:${port}`)
-  console.log("Up and running books service")
+  console.log("Up and running leadersboard service")
 })

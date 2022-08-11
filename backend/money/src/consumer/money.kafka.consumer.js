@@ -1,12 +1,13 @@
 const { Kafka } = require('kafkajs')
-const saveMoney = require('./money.post')
+const saveMoney = require('../service/money.post')
 
 const TOPIC = 'money6-topic'
 const BROKER_URL = process.env.BROKER_URL || 'localhost';
+const BROKER_PORT = process.env.BROKER_PORT || '9092';
 
 const kafka = new Kafka({
   clientId: 'my-app',
-  brokers: [`${BROKER_URL}:9092`]
+  brokers: [`${BROKER_URL}:${BROKER_PORT}`]
 })
 
 const consumer = kafka.consumer({

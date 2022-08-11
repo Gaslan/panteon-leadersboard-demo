@@ -4,12 +4,16 @@ const userModel = require("./user.model.js")
 const fs = require("fs")
 const { pipeline } = require("stream")
 const readline = require('readline')
+const { countries } = require('country-data')
 
 const User = mongoose.model('user', userModel)
-const USER_COUNT = 500
+const USER_COUNT = 998
+
+const MONGO_URL = 'mongodb+srv://gaslandev:190225384@panteon-leadersboard.rbx7i04.mongodb.net/?retryWrites=true&w=majority'
+// const MONGO_URL = 'mongodb://localhost:27017/users'
 
 mongoose
-  .connect("mongodb://localhost:27017/users", {
+  .connect(MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -23,35 +27,36 @@ mongoose
 
 
 function createUser() {
+  const countryCode = faker.address.countryCode()
   return {
     username: faker.internet.userName(),
-    country: faker.address.country(),
-    countryCode: faker.address.countryCode()
+    country: countries[countryCode].name,
+    countryCode: countryCode
   }
 }
 
 
-// for (let i = 0; i < USER_COUNT; i++) {
-//   const fakeUser = createUser()
-//   console.log(fakeUser)
-//   // saveToFile(fakeUser)
-//   saveToMongo(fakeUser)
-// }
+for (let i = 0; i < USER_COUNT; i++) {
+  const fakeUser = createUser()
+  // console.log(fakeUser)
+  // saveToFile(fakeUser)
+  saveToMongo(fakeUser)
+}
 
-(async () => {
-  const rs = fs.createReadStream("users.txt")
+// (async () => {
+//   const rs = fs.createReadStream("users.txt")
 
-  const rl = readline.createInterface({
-    input: rs,
-    crlfDelay: Infinity
-  })
+//   const rl = readline.createInterface({
+//     input: rs,
+//     crlfDelay: Infinity
+//   })
   
-  for await (const line of rl) {
-    console.log('SATIR BU:  ', `Line from file: ${line}`)
-    const user = JSON.parse(line)
-    saveToMongo(user)
-  }
-})()
+//   for await (const line of rl) {
+//     console.log('SATIR BU:  ', `Line from file: ${line}`)
+//     const user = JSON.parse(line)
+//     saveToMongo(user)
+//   }
+// })()
 
 
 
@@ -76,7 +81,7 @@ function saveToMongo(obj) {
   const user = new User(obj)
   user.save()
     .then((data) => {
-      console.log(data)
+      // console.log(data)
     })
     .catch((err) => {
       console.log(err)

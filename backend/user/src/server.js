@@ -1,74 +1,40 @@
-const express = require("express");
-const app = express();
-const morgan = require("morgan");
-const helmet = require("helmet");
-const cors = require("cors");
-const mongoose = require("mongoose");
-require("dotenv").config();
-app.use(morgan("dev"));
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
+const express = require("express")
+const app = express()
+const session = require('express-session')
+const MongoStore = require('connect-mongo')
+const morgan = require("morgan")
+const helmet = require("helmet")
+const cors = require("cors")
+require("dotenv").config()
+app.use(morgan("dev"))
+app.use(helmet())
+app.use(cors())
+app.use(express.json())
 
-const userModel = require("./user.model.js")
-const User = mongoose.model('user', userModel)
-const url = process.env.MONGO_URL || "mongodb://mongo:27017/users"
+const {mongoose} = require('./mongo.connection')
 
-mongoose
-  .connect(url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("Connection established with Book");
-  })
-  .catch(() => {
-    console.log("Connection failed");
-  })
+const indexRouter = require('./routers/index')
+const userRouter = require('./routers/user')
+const usersRouter = require('./routers/users')
 
-app.get("/", (req, res) => {
-  res.send("This is users service necmetin8");
-})
-
-
-app.get("/user", (req, res) => {
-  User.find()
-    .then((data) => {
-      res.status(200).send(data);
+app.use(
+  session({
+    secret: 'user-server',
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      client: mongoose.connection.getClient(),
+      stringify: false
     })
-    .catch((err) => {
-      res.status(400).send(err);
-    });
-})
+  })
+)
 
-app.post("/user", (req, res) => {
-  console.log(req.body, 'kemal', typeof req.body)
-  const user = new User(req.body);
-  user
-    .save()
-    .then((data) => {
-      res.status(200).send(data);
-    })
-    .catch((err) => {
-      res.status(400).send(err);
-    });
-});
-
-
-
-app.post("/users", (req, res) => {
-  User.find({ username: {$in : req.body}})
-    .then((data) => {
-      res.status(200).send(data);
-    })
-    .catch((err) => {
-      res.status(400).send(err);
-    });
-});
-
+app.use('/', indexRouter)
+app.use('/user', userRouter)
+app.use('/users', usersRouter)
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Listening: http://localhost:${port}`)
-  console.log("Up and running books service")
+  console.log("Up and running user service")
 })

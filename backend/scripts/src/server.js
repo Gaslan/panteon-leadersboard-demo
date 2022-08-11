@@ -9,14 +9,12 @@ app.use(helmet())
 app.use(cors())
 app.use(express.json())
 
-require('./consumer/money.kafka.consumer')
+const moneyIndexRouter = require('./routers/money/index')
 
-const indexRouter = require('./routers/index')
+app.use('/money', moneyIndexRouter)
 
-app.use('/', indexRouter)
-
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3008;
 app.listen(port, () => {
   console.log(`Listening: http://localhost:${port}`)
-  console.log("Up and running money service")
+  console.log("Up and running scripts service")
 })
